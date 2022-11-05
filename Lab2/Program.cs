@@ -3,8 +3,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        IsBalanced("{ ( < > ) }");  // true
-        IsBalanced("<> {(})");      // false
+        Console.WriteLine(IsBalanced("]"));
     }
 
     public static bool IsBalanced(string s)
@@ -24,16 +23,21 @@ public class Program
             // compare it to top of stack;
             else if (c == '>' || c == ')' || c == '}' || c == ']')
             {
-                char top;
-                bool result = stack.TryPeek(out top);
                 // handle result == false
-
-                // if they match, pop()
-                if (Matches(c, top) ) 
+                if (stack.Count > 0)
                 {
-                    stack.Pop();
+                    char top = stack.Peek();
+                    // if they match, pop()
+                    if (Matches(c, top))
+                    {
+                        stack.Pop();
+                    }
+                    // else, return false
+                    else
+                    {
+                        return false;
+                    }
                 }
-                // else, return false
                 else
                 {
                     return false;
@@ -54,25 +58,86 @@ public class Program
 
     private static bool Matches(char closing, char opening)
     {
-        throw new NotImplementedException();
+        if (opening == '<' && closing == '>')
+        {
+            return true;
+        }
+        else if (opening == '{' && closing == '}')
+        {
+            return true;
+        }
+        else if (opening == '[' && closing == ']')
+        {
+            return true;
+        }
+        else if (opening == '('  && closing == ')')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
     public static double? Evaluate(string s)
     {
+        Stack<string> stack = new Stack<string>();
         // parse string into tokens
         string[] tokens = s.Split();
 
         // foreach token
         // if it's a number, push to stack
+        foreach (string token in tokens)
+        {
+            int number;
+            bool isNumber = int.TryParse(token, out number);
+            if (isNumber == true)
+            {
+                stack.Push(token);
+            }
+            else
+            {
+                var num1 = Convert.ToDouble(stack.Pop());
+                var num2 = Convert.ToDouble(stack.Pop());
+                double result = computeResult(num2, num1, token);
+                stack.Push(result.ToString());
+            }
+        }
 
         // if it's a math operator, pop twice;
         // compute result;
         // push result onto stack
 
         // return top of stack (if the stack has 1 element)
+        if (stack.Count == 1)
+        {
+            return Convert.ToDouble(stack.Peek());
+        }
 
         return null;
+    }
+
+    private static double computeResult(double num1, double num2, string oper)
+    {
+        if (oper == "+")
+        {
+            return num1 + num2;
+        }
+        else if (oper == "-")
+        {
+            return num1 - num2;
+        }
+        else if (oper == "*")
+        {
+            return num1 * num2;
+        }
+        else if (oper == "/")
+        {
+            return num1 / num2;
+        }
+        return 0;
     }
 
 }
